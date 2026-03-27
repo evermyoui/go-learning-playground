@@ -9,12 +9,11 @@ import (
 )
 
 func main() {
-	// store and handler
 	store := NewUserStore()
 	h := NewUserHandler(store)
-	//router
+
 	r := chi.NewRouter()
-	// middleware
+
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
@@ -27,9 +26,9 @@ func main() {
 	})
 
 	port := ":8080"
-	log.Printf("Starting server on localhost%s\n", port)
+	log.Printf("Server starting on http://localhost%s\n", port)
 
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(port, r); err != nil {
 		log.Fatal(err)
 	}
 }
