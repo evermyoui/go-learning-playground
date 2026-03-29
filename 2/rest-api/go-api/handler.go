@@ -23,8 +23,11 @@ func writeJSON(response http.ResponseWriter, status int, payload any) {
 	json.NewEncoder(response).Encode(payload)
 }
 
-func errorJSON(response http.ResponseWriter, status int, payload any) {
-	writeJSON(response, status, APIResponse{})
+func errorJSON(response http.ResponseWriter, status int, message string) {
+	writeJSON(response, status, APIResponse{
+		Error:   message,
+		Success: false,
+	})
 }
 
 // handlers
