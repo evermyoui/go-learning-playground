@@ -20,7 +20,7 @@ func main() {
 
 	r.Route("/users", func(r chi.Router) { // anonymous function -> func (r chi.Router)
 		r.Get("/", h.ListUsers) //h.ListUsers correct because you're passing the function, not calling it.
-
+		r.Post("/", h.CreateUser)
 	})
 
 	port := ":8080"
