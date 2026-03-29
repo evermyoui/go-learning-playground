@@ -1,6 +1,9 @@
 package main
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 // holds users
 type UserStore struct {
@@ -24,4 +27,20 @@ func (s *UserStore) List() []User {
 		users = append(users, u)
 	}
 	return users
+}
+
+func (s *UserStore) Create(name, email string) User {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.counter++
+	user := User{
+		ID:        s.counter,
+		Name:      name,
+		Email:     email,
+		CreatedAt: time.Now(),
+	}
+
+	s.users[user.ID] = user
+	return user
 }

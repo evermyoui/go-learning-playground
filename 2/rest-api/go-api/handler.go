@@ -23,7 +23,7 @@ func writeJSON(response http.ResponseWriter, status int, payload any) {
 	json.NewEncoder(response).Encode(payload)
 }
 
-func errorJSON(response http.ResponseWriter, status int, message string) {
+func writeError(response http.ResponseWriter, status int, message string) {
 	writeJSON(response, status, APIResponse{
 		Error:   message,
 		Success: false,
@@ -37,4 +37,27 @@ func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Requ
 	if users == nil {
 		users = []User{}
 	}
+	writeJSON(response, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    users,
+	})
+}
+
+func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Request) {
+	var req CreateUserRequest
+
+	if err := json.NewDecoder(request.Body).Decode(&request); err != nil {
+		writeError(response, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+
+	if req.Email == "" || req.Name == "" {
+		writeError(response, http.StatusBadRequest, "fill all fields")
+	}
+
+	user := h.store.Create(req.Name, req.Email)
+	writeJSON(response, http.StatusCreated, APIResponse{
+		Success: true,
+		Data:    user,
+	})
 }
