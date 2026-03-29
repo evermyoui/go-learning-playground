@@ -15,8 +15,13 @@ func NewUserStore() *UserStore {
 	}
 }
 
-func (s *UserStore) List() User {
+func (s *UserStore) List() []User {
 	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	return
+	users := make([]User, 0, len(s.users))
+	for _, u := range s.users {
+		users = append(users, u)
+	}
+	return users
 }
