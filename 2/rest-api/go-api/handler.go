@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type UserHandler struct {
 	store *UserStore
@@ -13,6 +16,16 @@ func NewUserHandler(store *UserStore) *UserHandler {
 }
 
 // helpers
+
+func writeJSON(response http.ResponseWriter, status int, payload any) {
+	response.Header().Set("Content-Type", "application/json")
+	response.WriteHeader(status)
+	json.NewEncoder(response).Encode(payload)
+}
+
+func errorJSON(response http.ResponseWriter, status int, payload any) {
+	writeJSON(response, status, APIResponse{})
+}
 
 // handlers
 func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Request) {
