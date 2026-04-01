@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -23,6 +24,15 @@ type APIResponse struct {
 	Error   string `json:"error,omitempty"`
 }
 
+type CreateTaskRequest struct {
+	Title string `json:"title"`
+}
+
+type UpdateTaskRequest struct {
+	Title  *string `json:"title"`
+	IsDone *bool   `json:"done"`
+}
+
 func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -36,7 +46,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-func getTask(w http.ResponseWriter, r *http.Request) {
+func getTasks(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{
 		Success: true,
 		Data:    tasks,
@@ -44,7 +54,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func createTask(w http.ResponseWriter, r *http.Request) {
-	var task Task
+	var task CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
 		writeError(w, http.StatusBadRequest, "Invalid json")
 		return
@@ -61,14 +71,61 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 		IsDone: false,
 	}
 	tasks = append(tasks, newTask)
-	writeJSON(w, http.StatusOK, APIResponse{
+	writeJSON(w, http.StatusCreated, APIResponse{
 		Success: true,
 		Data:    newTask,
 	})
 }
 
 func updateTask(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	var id int
+	_, err := fmt.Sscanf(idParam, "%d", &id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+	var input UpdateTaskRequest
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+	for i, task := range tasks {
+		if task.ID == id {
+			if input.Title != nil || input.IsDone != nil {
+				tasks[i].Title = *input.Title
+				tasks[i].IsDone = *input.IsDone
+			}
+			writeJSON(w, http.StatusOK, APIResponse{
+				Success: true,
+				Data:    tasks[i],
+			})
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "ID not Found")
+}
 
+func deleteTask(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	var id int
+	_, err := fmt.Sscanf(idParam, "%d", &id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+
+	for i, task := range tasks {
+		if task.ID == id {
+			tasks = append(tasks[:i], tasks[i+1:]...)
+			writeJSON(w, http.StatusOK, APIResponse{
+				Success: true,
+				Data:    "Task Deleted",
+			})
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "No ID found")
 }
 
 func main() {
@@ -76,8 +133,10 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Route("/tasks", func(r chi.Router) {
-		r.Get("/", getTask)
+		r.Get("/", getTasks)
 		r.Post("/", createTask)
+		r.Put("/{id}", updateTask)
+		r.Delete("/{id}", deleteTask)
 	})
 
 	port := ":8080"
