@@ -133,12 +133,33 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 	writeError(w, http.StatusNotFound, "No ID found")
 }
 
+func getTask(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	var id int
+	_, err := fmt.Sscanf(idParam, "%d", &id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid ID")
+		return
+	}
+	for _, task := range tasks {
+		if task.ID == id {
+			writeJSON(w, http.StatusOK, APIResponse{
+				Success: true,
+				Data:    task,
+			})
+			return
+		}
+	}
+	writeError(w, http.StatusNotFound, "No ID found")
+}
+
 func main() {
 
 	r := chi.NewRouter()
 
 	r.Route("/tasks", func(r chi.Router) {
 		r.Get("/", getTasks)
+		r.Get("/{id}", getTask)
 		r.Post("/", createTask)
 		r.Put("/{id}", updateTask)
 		r.Delete("/{id}", deleteTask)
