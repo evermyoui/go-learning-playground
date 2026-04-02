@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var tasks []Task
@@ -55,19 +57,23 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 
 func createTask(w http.ResponseWriter, r *http.Request) {
 	var task CreateTaskRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
 		writeError(w, http.StatusBadRequest, "Invalid json")
 		return
 	}
-	if task.Title == "" {
-		writeError(w, http.StatusBadRequest, "Enter Title")
+
+	title := strings.TrimSpace(task.Title)
+
+	if title == "" || len(title) > 100 {
+		writeError(w, http.StatusBadRequest, "maximum of 100 or blanked title")
 		return
 	}
 
 	idCounter++
 	newTask := Task{
 		ID:     idCounter,
-		Title:  task.Title,
+		Title:  title,
 		IsDone: false,
 	}
 	tasks = append(tasks, newTask)
@@ -156,6 +162,8 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
 
 	r.Route("/tasks", func(r chi.Router) {
 		r.Get("/", getTasks)
