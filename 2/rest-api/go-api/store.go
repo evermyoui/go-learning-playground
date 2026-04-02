@@ -47,12 +47,48 @@ func (s *UserStore) Create(name, email string) User {
 }
 
 func (s *UserStore) GetById(id int) (User, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	user, ok := s.users[id]
 	if !ok {
 		return User{}, fmt.Errorf("user with id %d not found", id)
 	}
 	return user, nil
+}
+
+func (s *UserStore) Update(id int, name, email string) (User, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	user, ok := s.users[id]
+
+	if !ok {
+		return User{}, fmt.Errorf("user with id %d not found", id)
+	}
+
+	if name != "" {
+		user.Name = name
+	}
+
+	if email != "" {
+		user.Email = email
+	}
+
+	s.users[user.ID] = user
+
+	return user, nil
+}
+
+func (s *UserStore) Delete(id int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.users[id]; !ok {
+		return fmt.Errorf("user with id %d not found", id)
+	}
+
+	delete(s.users, id)
+
+	return nil
 }
