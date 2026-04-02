@@ -92,18 +92,23 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	for i, task := range tasks {
 		if task.ID == id {
-			if input.Title != nil || input.IsDone != nil {
+			if input.Title == nil && input.IsDone == nil {
+				writeError(w, http.StatusBadRequest, "Nothing update")
+				return
+			}
+			if input.Title != nil {
 				tasks[i].Title = *input.Title
+			}
+			if input.IsDone != nil {
 				tasks[i].IsDone = *input.IsDone
 			}
 			writeJSON(w, http.StatusOK, APIResponse{
 				Success: true,
 				Data:    tasks[i],
 			})
-			return
 		}
 	}
-	writeError(w, http.StatusNotFound, "ID not Found")
+	writeError(w, http.StatusBadRequest, "Task not found")
 }
 
 func deleteTask(w http.ResponseWriter, r *http.Request) {
