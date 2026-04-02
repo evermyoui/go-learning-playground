@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -43,4 +44,15 @@ func (s *UserStore) Create(name, email string) User {
 
 	s.users[user.ID] = user
 	return user
+}
+
+func (s *UserStore) GetById(id int) (User, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	user, ok := s.users[id]
+	if !ok {
+		return User{}, fmt.Errorf("user with id %d not found", id)
+	}
+	return user, nil
 }

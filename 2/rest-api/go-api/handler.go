@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type UserHandler struct {
@@ -28,6 +31,10 @@ func writeError(response http.ResponseWriter, status int, message string) {
 		Error:   message,
 		Success: false,
 	})
+}
+
+func parseID(request *http.Request) (int, error) {
+	return strconv.Atoi(chi.URLParam(request, "id"))
 }
 
 // handlers
@@ -57,6 +64,25 @@ func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Req
 
 	user := h.store.Create(req.Name, req.Email)
 	writeJSON(response, http.StatusCreated, APIResponse{
+		Success: true,
+		Data:    user,
+	})
+}
+
+func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Request) {
+	id, err := parseID(request)
+	if err != nil {
+		writeError(response, http.StatusBadRequest, "invalid user id")
+		return
+	}
+
+	user, err := h.store.GetById(id)
+	if err != nil {
+		writeError(response, http.StatusNotFound, err.Error())
+		return
+	}
+
+	writeJSON(response, http.StatusOK, APIResponse{
 		Success: true,
 		Data:    user,
 	})
