@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -160,6 +162,20 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	var db *sql.DB
+	user := os.Getenv("DB_USER")
+	pass := os.Getenv("DB_PASS")
+	host := os.Getenv("DB_HOST")
+	dbName := os.Getenv("DB_NAME")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", user, pass, host, dbName)
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = db.Ping(); err != nil {
+		log.Fatal(err)
+	}
 
 	r := chi.NewRouter()
 
