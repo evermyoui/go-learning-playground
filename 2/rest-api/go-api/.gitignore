@@ -1,1 +1,30 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/go-api
+/bin/
+ 
+# Go build cache
+*.test
+*.out
+ 
+# Environment variables — NEVER commit this
 .env
+.env.*
+!.env.example
+ 
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+ 
+# OS
+.DS_Store
+Thumbs.db
+ 
+# Air (live reload tool)
+tmp/
