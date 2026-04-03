@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 // connect to postgres db
@@ -22,4 +23,20 @@ func NewPostgresStore(dsn string) (*PostgresStore, error) {
 	db.SetMaxIdleConns(5)  // max idle connection
 
 	return &PostgresStore{db: db}, nil
+}
+
+// create function
+func (s *PostgresStore) Create(name, email string) (User, error) {
+	var user User
+
+	query := `
+			INSERT INTO users (name, email)
+			VALUES ($1, $2)
+			RETURNING *
+	`
+	if err := s.db.Get(&user, query, name, email); err != nil {
+		return User{}, fmt.Errorf("create user: %w", err)
+	}
+
+	return user, nil
 }

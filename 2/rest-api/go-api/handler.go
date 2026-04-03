@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -9,10 +10,10 @@ import (
 )
 
 type UserHandler struct {
-	store *UserStore
+	store UserStorer
 }
 
-func NewUserHandler(store *UserStore) *UserHandler {
+func NewUserHandler(store UserStorer) *UserHandler {
 	return &UserHandler{
 		store: store,
 	}
@@ -38,17 +39,17 @@ func parseID(request *http.Request) (int, error) {
 }
 
 // handlers
-func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Request) {
-	users := h.store.List()
+// func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Request) {
+// 	users := h.store.List()
 
-	if users == nil {
-		users = []User{}
-	}
-	writeJSON(response, http.StatusOK, APIResponse{
-		Success: true,
-		Data:    users,
-	})
-}
+// 	if users == nil {
+// 		users = []User{}
+// 	}
+// 	writeJSON(response, http.StatusOK, APIResponse{
+// 		Success: true,
+// 		Data:    users,
+// 	})
+// }
 
 func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Request) {
 	var req CreateUserRequest
@@ -63,82 +64,86 @@ func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Req
 		return
 	}
 
-	user := h.store.Create(req.Name, req.Email)
+	user, err := h.store.Create(req.Name, req.Email)
+	if err != nil {
+		log.Printf("CreateUser error: %v", err)
+		writeError(response, http.StatusInternalServerError, "failed to create user")
+	}
 	writeJSON(response, http.StatusCreated, APIResponse{
 		Success: true,
 		Data:    user,
 	})
 }
 
-func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Request) {
-	id, err := parseID(request)
-	if err != nil {
-		writeError(response, http.StatusBadRequest, "invalid user id")
-		return
-	}
+// func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Request) {
+// 	id, err := parseID(request)
+// 	if err != nil {
+// 		writeError(response, http.StatusBadRequest, "invalid user id")
+// 		return
+// 	}
 
-	user, err := h.store.GetById(id)
-	if err != nil {
-		writeError(response, http.StatusNotFound, err.Error())
-		return
-	}
+// 	user, err := h.store.GetById(id)
+// 	if err != nil {
+// 		writeError(response, http.StatusNotFound, err.Error())
+// 		return
+// 	}
 
-	writeJSON(response, http.StatusOK, APIResponse{
-		Success: true,
-		Data:    user,
-	})
-}
+// 	writeJSON(response, http.StatusOK, APIResponse{
+// 		Success: true,
+// 		Data:    user,
+// 	})
+// }
 
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := parseID(r)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid user id")
-		return
-	}
+// func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+// 	id, err := parseID(r)
+// 	if err != nil {
+// 		writeError(w, http.StatusBadRequest, "invalid user id")
+// 		return
+// 	}
 
-	var req UpdateUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid JSON Body")
-		return
-	}
+// 	var req UpdateUserRequest
+// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+// 		writeError(w, http.StatusBadRequest, "invalid JSON Body")
+// 		return
+// 	}
 
-	name, email := "", ""
+// 	name, email := "", ""
 
-	if req.Name != nil {
-		name = *req.Name
-	}
+// 	if req.Name != nil {
+// 		name = *req.Name
+// 	}
 
-	if req.Email != nil {
-		email = *req.Email
-	}
+// 	if req.Email != nil {
+// 		email = *req.Email
+// 	}
 
-	user, err := h.store.Update(id, name, email)
+// 	user, err := h.store.Update(id, name, email)
 
-	if err != nil {
-		writeError(w, http.StatusMethodNotAllowed, err.Error())
-		return
-	}
+// 	if err != nil {
+// 		writeError(w, http.StatusMethodNotAllowed, err.Error())
+// 		return
+// 	}
 
-	writeJSON(w, http.StatusOK, APIResponse{
-		Success: true,
-		Data:    user,
-	})
-}
+// 	writeJSON(w, http.StatusOK, APIResponse{
+// 		Success: true,
+// 		Data:    user,
+// 	})
+// }
 
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := parseID(r)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "invalid id")
-		return
-	}
+// func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+// 	id, err := parseID(r)
+// 	if err != nil {
+// 		writeError(w, http.StatusBadRequest, "invalid id")
+// 		return
+// 	}
 
-	if err := h.store.Delete(id); err != nil {
-		writeError(w, http.StatusNotFound, err.Error())
-		return
-	}
+// 	if err := h.store.Delete(id); err != nil {
+// 		writeError(w, http.StatusNotFound, err.Error())
+// 		return
+// 	}
 
-	writeJSON(w, http.StatusOK, APIResponse{
-		Success: true,
-		Data:    "User Deleted",
-	})
-}
+// 	writeJSON(w, http.StatusOK, APIResponse{
+// 		Success: true,
+// 		Data:    "User Deleted",
+// 	})
+// }
