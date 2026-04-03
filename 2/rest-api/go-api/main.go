@@ -22,13 +22,14 @@ func main() {
 		r.Get("/", h.ListUsers) //h.ListUsers correct because you're passing the function, not calling it.
 		r.Post("/", h.CreateUser)
 		r.Get("/{id}", h.GetUser)
-
+		r.Put("/{id}", h.UpdateUser)
+		r.Delete("/{id}", h.DeleteUser)
 	})
 
 	port := ":8080"
 	log.Printf("Starting server on localhost%s\n", port)
 
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(port, r); err != nil {
 		log.Fatal(err)
 	}
 }
