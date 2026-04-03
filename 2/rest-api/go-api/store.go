@@ -58,8 +58,8 @@ func (s *UserStore) GetById(id int) (User, error) {
 }
 
 func (s *UserStore) Update(id int, name, email string) (User, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	user, ok := s.users[id]
 
