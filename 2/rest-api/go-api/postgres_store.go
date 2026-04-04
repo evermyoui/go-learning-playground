@@ -73,20 +73,19 @@ func (s *PostgresStore) GetByID(id int) (User, error) {
 	return user, nil
 }
 
-// func (s *PostgresStore) Update(id int, name, email string) (User, error) {
-// 	var user User
+func (s *PostgresStore) Update(id int, name, email string) (User, error) {
+	var user User
 
-// 	query := `
-// 		UPDATE users
-// 		SET
-// 		name = COALESCE(NULLIF($2, ''),name)
-// 		email = COALESCE(NULLIF($3, ''),email)
-
-// 		WHERE id = $1
-// 		RETURNING *
-// 	`
-// 	if err := s.db.Get(&user, query, id, name, email); err != nil {
-// 		return User{}, fmt.Errorf("update user: %w", err)
-// 	}
-// 	return user, nil
-// }
+	query := `
+		UPDATE users
+		SET
+			name = COALESCE(NULLIF($2,''),name),
+			email = COALESCE(NULLIF($3,''),email)
+		WHERE id = $1
+		RETURNING *
+	`
+	if err := s.db.Get(&user, query, id, name, email); err != nil {
+		return User{}, fmt.Errorf("Error update user: %w", err)
+	}
+	return user, nil
+}

@@ -99,41 +99,41 @@ func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Reques
 	})
 }
 
-// func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-// 	id, err := parseID(r)
-// 	if err != nil {
-// 		writeError(w, http.StatusBadRequest, "invalid user id")
-// 		return
-// 	}
+func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
 
-// 	var req UpdateUserRequest
-// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 		writeError(w, http.StatusBadRequest, "invalid JSON Body")
-// 		return
-// 	}
+	var req UpdateUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON Body")
+		return
+	}
 
-// 	name, email := "", ""
+	name, email := "", ""
 
-// 	if req.Name != nil {
-// 		name = *req.Name
-// 	}
+	if req.Name != nil {
+		name = *req.Name
+	}
 
-// 	if req.Email != nil {
-// 		email = *req.Email
-// 	}
+	if req.Email != nil {
+		email = *req.Email
+	}
 
-// 	user, err := h.store.Update(id, name, email)
+	user, err := h.store.Update(id, name, email)
 
-// 	if err != nil {
-// 		writeError(w, http.StatusMethodNotAllowed, err.Error())
-// 		return
-// 	}
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-// 	writeJSON(w, http.StatusOK, APIResponse{
-// 		Success: true,
-// 		Data:    user,
-// 	})
-// }
+	writeJSON(w, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    user,
+	})
+}
 
 // func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // 	id, err := parseID(r)
