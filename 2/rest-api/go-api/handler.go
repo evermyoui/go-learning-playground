@@ -39,17 +39,22 @@ func parseID(request *http.Request) (int, error) {
 }
 
 // handlers
-// func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Request) {
-// 	users := h.store.List()
+func (h *UserHandler) ListUsers(response http.ResponseWriter, request *http.Request) {
+	users, err := h.store.List()
+	if err != nil {
+		log.Printf("Error: %v ", err)
+		writeError(response, http.StatusInternalServerError, "failed to list users")
+		return
+	}
 
-// 	if users == nil {
-// 		users = []User{}
-// 	}
-// 	writeJSON(response, http.StatusOK, APIResponse{
-// 		Success: true,
-// 		Data:    users,
-// 	})
-// }
+	if users == nil {
+		users = []User{}
+	}
+	writeJSON(response, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    users,
+	})
+}
 
 func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Request) {
 	var req CreateUserRequest
@@ -66,8 +71,8 @@ func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Req
 
 	user, err := h.store.Create(req.Name, req.Email)
 	if err != nil {
-		log.Printf("CreateUser error: %v", err)
 		writeError(response, http.StatusInternalServerError, "failed to create user")
+		return
 	}
 	writeJSON(response, http.StatusCreated, APIResponse{
 		Success: true,

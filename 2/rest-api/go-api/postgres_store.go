@@ -40,3 +40,21 @@ func (s *PostgresStore) Create(name, email string) (User, error) {
 
 	return user, nil
 }
+
+func (s *PostgresStore) List() ([]User, error) {
+	var users []User
+
+	query := `
+			SELECT *
+			FROM users
+	`
+	if err := s.db.Select(&users, query); err != nil {
+		return nil, fmt.Errorf("list users: %w", err)
+	}
+
+	if users == nil {
+		users = []User{}
+	}
+
+	return users, nil
+}

@@ -5,5 +5,5 @@ type UserStorer interface {
 	// GetByID(id int) (User, error)
 	// Update(id int, name, email string) (User, error)
 	// Delete(id int) error
-	// List() ([]User, error)
+	List() ([]User, error)
 }

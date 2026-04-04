@@ -40,7 +40,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/users", func(r chi.Router) { // anonymous function -> func (r chi.Router)
-		// r.Get("/", h.ListUsers)
+		r.Get("/", h.ListUsers)
 		r.Post("/", h.CreateUser)
 		// r.Get("/{id}", h.GetUser)
 		// r.Put("/{id}", h.UpdateUser)
