@@ -58,3 +58,35 @@ func (s *PostgresStore) List() ([]User, error) {
 
 	return users, nil
 }
+
+func (s *PostgresStore) GetByID(id int) (User, error) {
+	var user User
+
+	query := `
+		SELECT * FROM users
+		WHERE id = $1
+	`
+	if err := s.db.Get(&user, query, id); err != nil {
+		return User{}, fmt.Errorf("Not avail to find id %w", err)
+	}
+
+	return user, nil
+}
+
+// func (s *PostgresStore) Update(id int, name, email string) (User, error) {
+// 	var user User
+
+// 	query := `
+// 		UPDATE users
+// 		SET
+// 		name = COALESCE(NULLIF($2, ''),name)
+// 		email = COALESCE(NULLIF($3, ''),email)
+
+// 		WHERE id = $1
+// 		RETURNING *
+// 	`
+// 	if err := s.db.Get(&user, query, id, name, email); err != nil {
+// 		return User{}, fmt.Errorf("update user: %w", err)
+// 	}
+// 	return user, nil
+// }

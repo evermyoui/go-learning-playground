@@ -80,24 +80,24 @@ func (h *UserHandler) CreateUser(response http.ResponseWriter, request *http.Req
 	})
 }
 
-// func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Request) {
-// 	id, err := parseID(request)
-// 	if err != nil {
-// 		writeError(response, http.StatusBadRequest, "invalid user id")
-// 		return
-// 	}
+func (h *UserHandler) GetUser(response http.ResponseWriter, request *http.Request) {
+	id, err := parseID(request)
+	if err != nil {
+		writeError(response, http.StatusBadRequest, "invalid user id")
+		return
+	}
 
-// 	user, err := h.store.GetById(id)
-// 	if err != nil {
-// 		writeError(response, http.StatusNotFound, err.Error())
-// 		return
-// 	}
+	user, err := h.store.GetByID(id)
+	if err != nil {
+		writeError(response, http.StatusNotFound, err.Error())
+		return
+	}
 
-// 	writeJSON(response, http.StatusOK, APIResponse{
-// 		Success: true,
-// 		Data:    user,
-// 	})
-// }
+	writeJSON(response, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    user,
+	})
+}
 
 // func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // 	id, err := parseID(r)
