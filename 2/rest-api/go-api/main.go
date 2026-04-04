@@ -44,7 +44,7 @@ func main() {
 		r.Post("/", h.CreateUser)
 		r.Get("/{id}", h.GetUser)
 		r.Put("/{id}", h.UpdateUser)
-		// r.Delete("/{id}", h.DeleteUser)
+		r.Delete("/{id}", h.DeleteUser)
 	})
 
 	log.Printf("Starting server on localhost%s\n", port)

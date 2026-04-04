@@ -135,20 +135,20 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-// 	id, err := parseID(r)
-// 	if err != nil {
-// 		writeError(w, http.StatusBadRequest, "invalid id")
-// 		return
-// 	}
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid id")
+		return
+	}
 
-// 	if err := h.store.Delete(id); err != nil {
-// 		writeError(w, http.StatusNotFound, err.Error())
-// 		return
-// 	}
+	if err := h.store.Delete(id); err != nil {
+		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
 
-// 	writeJSON(w, http.StatusOK, APIResponse{
-// 		Success: true,
-// 		Data:    "User Deleted",
-// 	})
-// }
+	writeJSON(w, http.StatusOK, APIResponse{
+		Success: true,
+		Data:    "User Deleted",
+	})
+}

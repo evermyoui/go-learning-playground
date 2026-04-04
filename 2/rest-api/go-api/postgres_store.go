@@ -89,3 +89,26 @@ func (s *PostgresStore) Update(id int, name, email string) (User, error) {
 	}
 	return user, nil
 }
+
+func (s *PostgresStore) Delete(id int) error {
+
+	query := `
+		DELETE FROM users
+		WHERE id = $1
+	`
+	result, err := s.db.Exec(query, id)
+
+	if err != nil {
+		return fmt.Errorf("delete user exec failed: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("delete user rows affected failed: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("User not found id: %d", id)
+	}
+
+	return nil
+}
