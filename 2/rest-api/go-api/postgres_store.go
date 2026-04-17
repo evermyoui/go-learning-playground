@@ -26,6 +26,20 @@ func NewPostgresStore(dsn string) (*PostgresStore, error) {
 }
 
 // create function
+
+func (s *PostgresStore) CreateWithPassword(name, email, passwordHash string) (User, error) {
+	var user User
+	query := `
+		INSERT INTO users(name, email, password_hash)
+		VALUES ($1, $2, $3)
+		RETURNING id, name, email, created_at
+	`
+	if err := s.db.Get(&user, query, name, email, passwordHash); err != nil {
+		return User{}, fmt.Errorf("create user: %v", err)
+	}
+	return user, nil
+}
+
 func (s *PostgresStore) Create(name, email string) (User, error) {
 	var user User
 
