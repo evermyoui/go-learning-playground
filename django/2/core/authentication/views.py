@@ -8,7 +8,7 @@ from .models import *
 def home(request):
     return render(request, 'home.html')
 
-def login_apge(request):
+def login_page(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
