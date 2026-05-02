@@ -14,11 +14,11 @@ def login_page(request):
         password = request.POST.get('password')
 
         # not user existed
-        if User.objects.filter(username=username).exists():
+        if not User.objects.filter(username=username).exists():
             messages.error(request, 'No user existed')
             return redirect('/login/')
         
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
 
         if user is None:
             messages.error(request, 'Invalid username/password')
